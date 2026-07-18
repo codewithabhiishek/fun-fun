@@ -1,13 +1,13 @@
-# 💾 Windows XP / 95 (Gemini 95) Desktop Simulator
+# 💾 Windows XP / 95 Desktop Simulator
 
-An interactive, nostalgia-fueled simulation of classic operating systems (Windows 95/XP) built with **TypeScript**, **Tailwind CSS**, and **ESM modules**. This environment features draggable windows, a start menu taskbar, classic retro applications, and interactive integrations powered by **Gemini AI**.
+An interactive, nostalgia-fueled simulation of classic operating systems (Windows 95/XP) built with **TypeScript**, **Tailwind CSS**, and **ESM modules**. This environment features draggable windows, a start menu taskbar, classic retro applications, and interactive layout management.
 
 ---
 
 ## 🖥️ Active Applications
 
-*   **🎨 GemPaint:** A pixel art canvas drawer. Features active drawing tools and an automated **Gemini AI Art Critic** that reviews and critiques your drawings in real-time.
-*   **📝 GemNotes:** A fully functional rich text notepad with an embedded Gemini helper that assists in text expansion and brainstorming.
+*   **🎨 GemPaint:** A pixel art canvas drawer featuring active drawing tools, color palettes, and retro canvas brushes.
+*   **📝 GemNotes:** A fully functional rich text notepad editor for document formatting, text edits, and brainstorming.
 *   **💣 Minesweeper:** The authentic, logic-based minefield grid game with custom difficulty selectors and elapsed timer tracking.
 *   **😈 Doom II:** An emulated, classic DOS-run session of Doom II directly inside a draggable desktop window.
 *   **🎵 GemPlayer:** A retro Winamp-styled media player for loading and playing YouTube video links.
