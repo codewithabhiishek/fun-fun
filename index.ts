@@ -917,7 +917,8 @@ function initMyComputer(windowElement: HTMLDivElement): void {
     const cDriveIcon = windowElement.querySelector('#c-drive-icon') as HTMLDivElement;
     const cDriveContent = windowElement.querySelector('#c-drive-content') as HTMLDivElement;
     const secretImageIcon = windowElement.querySelector('#secret-image-icon') as HTMLDivElement;
-    if (!cDriveIcon || !cDriveContent || !secretImageIcon) return;
+    const creditsIcon = windowElement.querySelector('#credits-txt-icon') as HTMLDivElement;
+    if (!cDriveIcon || !cDriveContent || !secretImageIcon || !creditsIcon) return;
     cDriveIcon.addEventListener('click', () => {
         cDriveIcon.style.display = 'none'; cDriveContent.style.display = 'block';
     });
@@ -930,6 +931,14 @@ function initMyComputer(windowElement: HTMLDivElement): void {
         imageViewerImg.alt = 'bliss.jpg';
         imageViewerTitle.textContent = 'bliss.jpg - Image Viewer';
         openApp('imageViewer');
+    });
+    creditsIcon.addEventListener('click', () => {
+        const notepadWindow = document.getElementById('notepad') as HTMLDivElement | null;
+        const textarea = notepadWindow?.querySelector('.notepad-textarea') as HTMLTextAreaElement | null;
+        if (notepadWindow && textarea) {
+            textarea.value = `[ SYSTEM INFORMATION ]\n-----------------------------------------\nSYSTEM DEVELOPER: Abhishek (for fun)\nYEAR OF ORIGIN:   1996 / 2026\n\nWARNING: Do not delete SYSTEM32 folder. \nSide effects include: BSOD, retro temporal loops, and extreme nostalgia.`;
+            openApp('notepad');
+        }
     });
     cDriveIcon.style.display = 'inline-flex'; cDriveContent.style.display = 'none';
 }
