@@ -1,6 +1,6 @@
 {
-  "name": "Remix: Gemini 95",
-  "description": "Explore a retro OS that brings back nostalgic memories with an AI twist.",
+  "name": "Windows XP Desktop Simulator",
+  "description": "Explore a retro OS desktop simulation that brings back nostalgic memories.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

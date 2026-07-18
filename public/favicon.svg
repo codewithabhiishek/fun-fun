@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <g transform="translate(4, 4)">
+    <!-- Red (Top-Left) -->
+    <path d="M 2,12 Q 10,8 20,12 L 20,2 L 2,2 Z" fill="#ff3333" stroke="#000000" stroke-width="2.5" stroke-linejoin="round" />
+    <!-- Green (Top-Right) -->
+    <path d="M 20,12 Q 30,14 38,10 L 38,0 Q 30,4 20,2 Z" fill="#33cc33" stroke="#000000" stroke-width="2.5" stroke-linejoin="round" />
+    <!-- Blue (Bottom-Left) -->
+    <path d="M 2,12 Q 10,8 20,12 L 20,22 Q 10,18 2,22 Z" fill="#0066ff" stroke="#000000" stroke-width="2.5" stroke-linejoin="round" />
+    <!-- Yellow (Bottom-Right) -->
+    <path d="M 20,12 Q 30,14 38,10 L 38,20 Q 30,24 20,22 Z" fill="#ffcc00" stroke="#000000" stroke-width="2.5" stroke-linejoin="round" />
+  </g>
+</svg>

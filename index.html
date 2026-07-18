@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Windows 95 Simulator</title>
+    <title>Windows XP Desktop Simulator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script type="importmap">
       {
         "imports": {
-          "@google/genai": "https://esm.sh/@google/genai@0.7.0",
           "@tailwindcss/browser": "https://esm.sh/@tailwindcss/browser@^4.1.3"
         }
       }
@@ -29,7 +29,7 @@
           alt="My Computer"
           style="width: 70px; height: 50px"
         />
-        <span>My Gemtop</span>
+        <span>My Computer</span>
       </div>
       <div class="icon" data-app="chrome">
         <img src="https://storage.googleapis.com/gemini-95-icons/chrome-icon-2.png" alt="Chrome" />
@@ -37,11 +37,11 @@
       </div>
       <div class="icon" data-app="notepad">
         <img src="https://storage.googleapis.com/gemini-95-icons/GemNotes.png" alt="Notepad" />
-        <span>GemNotes</span>
+        <span>Notepad</span>
       </div>
       <div class="icon" data-app="paint">
         <img src="https://storage.googleapis.com/gemini-95-icons/gempaint.png" alt="Paint" />
-        <span>GemPaint</span>
+        <span>Paint</span>
       </div>
       <div class="icon" data-app="doom">
         <img
@@ -50,20 +50,13 @@
         />
         <span>Doom II</span>
       </div>
-      <div class="icon" data-app="gemini">
-        <img
-          src="https://storage.googleapis.com/gemini-95-icons/GeminiChatRetro.png"
-          alt="Gemini App"
-        />
-        <span>Gemini App</span>
-      </div>
       <div class="icon" data-app="minesweeper">
         <img
           src="https://storage.googleapis.com/gemini-95-icons/gemsweeper.png"
           alt="Minesweeper"
           style="width: 48px; height: 48px"
         />
-        <span>GemSweeper</span>
+        <span>Minesweeper</span>
       </div>
       <div class="icon" data-app="mediaPlayer">
         <img
@@ -71,14 +64,14 @@
           alt="Media Player"
           style="width: 48px; height: 48px"
         />
-        <span>GemPlayer</span>
+        <span>Media Player</span>
       </div>
 
 
       <!-- Windows -->
       <div class="window resizable" id="myComputer">
         <div class="window-titlebar">
-          <span class="window-title">My Gemtop</span>
+          <span class="window-title">My Computer</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
             <div class="window-maximize window-control-button">□</div>
@@ -305,28 +298,9 @@
         </div>
       </div>
 
-      <div class="window resizable" id="gemini">
-        <div class="window-titlebar">
-          <span class="window-title">Gemini App</span>
-          <div class="window-controls">
-            <div class="window-minimize window-control-button">−</div>
-            <div class="window-maximize window-control-button">□</div>
-            <div class="window-close window-control-button">✕</div>
-          </div>
-        </div>
-        <div class="window-content gemini-chat-content">
-          <div class="gemini-chat-history">
-          </div>
-          <div class="gemini-chat-input-area">
-            <input type="text" class="gemini-chat-input" placeholder="Type your message..." />
-            <button class="gemini-chat-send">Send</button>
-          </div>
-        </div>
-      </div>
-
       <div class="window resizable" id="minesweeper" style="width: 400px; height: 450px">
         <div class="window-titlebar">
-          <span class="window-title">GemSweeper</span>
+          <span class="window-title">Minesweeper</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
             <div class="window-maximize window-control-button">□</div>
@@ -427,14 +401,13 @@
 
       <!-- Start Menu -->
       <div class="start-menu" id="start-menu">
-        <div class="start-menu-item" data-app="myComputer">My Gemtop</div>
+        <div class="start-menu-item" data-app="myComputer">My Computer</div>
         <div class="start-menu-item" data-app="chrome">Chrome</div>
-        <div class="start-menu-item" data-app="notepad">GemNotes</div>
-        <div class="start-menu-item" data-app="paint">GemPaint</div>
+        <div class="start-menu-item" data-app="notepad">Notepad</div>
+        <div class="start-menu-item" data-app="paint">Paint</div>
         <div class="start-menu-item" data-app="doom">Doom II</div>
-        <div class="start-menu-item" data-app="gemini">Gemini App</div>
-        <div class="start-menu-item" data-app="minesweeper">GemSweeper</div>
-        <div class="start-menu-item" data-app="mediaPlayer">GemPlayer</div>
+        <div class="start-menu-item" data-app="minesweeper">Minesweeper</div>
+        <div class="start-menu-item" data-app="mediaPlayer">Media Player</div>
       </div>
 
       <!-- Taskbar -->
@@ -448,15 +421,6 @@
         </button>
         <div id="taskbar-apps">
         </div>
-      </div>
-
-      <div id="paint-assistant">
-        <div class="assistant-bubble">Thinking...</div>
-        <img
-          src="https://storage.googleapis.com/gemini-95-icons/robot-assistant.gif"
-          alt="Paint Assistant"
-          class="assistant-image"
-        />
       </div>
     </div>
   <script type="module" src="/index.ts"></script>

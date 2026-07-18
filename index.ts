@@ -4,8 +4,8 @@
  */
 import '@tailwindcss/browser';
 
-//Gemini 95 was fully vibe-coded by @ammaar and @olacombe, while we don't endorse code quality, we thought it was a fun demonstration of what's possible with the model when a Designer and PM jam.
-//An homage to an OS that inspired so many of us!
+// Windows XP Desktop Simulator
+// An homage to an OS that inspired so many of us!
 
 // Define the dosInstances object to fix type errors
 const dosInstances: Record<string, { initialized: boolean }> = {};
@@ -24,7 +24,7 @@ const assistantBubble = paintAssistant?.querySelector('.assistant-bubble') as HT
 let activeWindow: HTMLDivElement | null = null;
 let highestZIndex: number = 20; // Start z-index for active windows
 const openApps = new Map<string, { windowEl: HTMLDivElement; taskbarButton: HTMLDivElement }>(); // Store open apps and their elements
-let geminiInstance: any | null = null; // Store the initialized Gemini AI instance
+
 let paintCritiqueIntervalId: number | null = null; // Timer for paint critiques
 
 // Store ResizeObservers to disconnect them later
@@ -109,16 +109,16 @@ async function openApp(appName: string): Promise<void> {
         if(img) iconSrc = img.src;
         if(span) title = span.textContent || appName;
     } else { // Fallback for apps opened via start menu but maybe no desktop icon
-         switch(appName) {
-            case 'myComputer': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/mycomputer.png'; title = 'My Gemtop'; break;
+        switch(appName) {
+            case 'myComputer': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/mycomputer.png'; title = 'My Computer'; break;
             case 'chrome': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/chrome-icon-2.png'; title = 'Chrome'; break;
-            case 'notepad': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/GemNotes.png'; title = 'GemNotes'; break;
-            case 'paint': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/gempaint.png'; title = 'GemPaint'; break;
+            case 'notepad': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/GemNotes.png'; title = 'Notepad'; break;
+            case 'paint': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/gempaint.png'; title = 'Paint'; break;
             case 'doom': iconSrc = 'https://64.media.tumblr.com/1d89dfa76381e5c14210a2149c83790d/7a15f84c681c1cf9-c1/s540x810/86985984be99d5591e0cbc0dea6f05ffa3136dac.png'; title = 'Doom II'; break;
             case 'gemini': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/GeminiChatRetro.png'; title = 'Gemini App'; break;
-            case 'minesweeper': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/gemsweeper.png'; title = 'GemSweeper'; break;
+            case 'minesweeper': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/gemsweeper.png'; title = 'Minesweeper'; break;
             case 'imageViewer': iconSrc = 'https://win98icons.alexmeub.com/icons/png/display_properties-4.png'; title = 'Image Viewer'; break;
-            case 'mediaPlayer': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/ytmediaplayer.png'; title = 'GemPlayer'; break;
+            case 'mediaPlayer': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/ytmediaplayer.png'; title = 'Media Player'; break;
          }
     }
 
@@ -148,14 +148,10 @@ async function openApp(appName: string): Promise<void> {
         initAiBrowser(windowElement);
     }
     else if (appName === 'notepad') {
-        await initNotepadStory(windowElement);
+        initNotepadStory(windowElement);
     }
     else if (appName === 'paint') {
         initSimplePaintApp(windowElement);
-        if (paintAssistant) paintAssistant.classList.add('visible');
-        if (assistantBubble) assistantBubble.textContent = 'Warming up my judging circuits...';
-        if (paintCritiqueIntervalId) clearInterval(paintCritiqueIntervalId);
-        paintCritiqueIntervalId = window.setInterval(critiquePaintDrawing, 15000);
     }
     else if (appName === 'doom' && !dosInstances['doom']) {
         const doomGameContainer = document.getElementById('doom-game-container') as HTMLDivElement | null;
@@ -164,8 +160,6 @@ async function openApp(appName: string): Promise<void> {
             dosInstances['doom'] = { initialized: true };
             initDoomDashboard();
         }
-    } else if (appName === 'gemini') {
-        await initGeminiChat(windowElement);
     }
     else if (appName === 'minesweeper') {
         initMinesweeperGame(windowElement);
@@ -307,108 +301,47 @@ function minimizeApp(appName: string): void {
     }
 }
 
-// --- Gemini Chat Specific Functions ---
-async function initGeminiChat(windowElement: HTMLDivElement): Promise<void> {
-    const historyDiv = windowElement.querySelector('.gemini-chat-history') as HTMLDivElement;
-    const inputEl = windowElement.querySelector('.gemini-chat-input') as HTMLInputElement;
-    const sendButton = windowElement.querySelector('.gemini-chat-send') as HTMLButtonElement;
-
-    if (!historyDiv || !inputEl || !sendButton) {
-        console.error("Gemini chat elements not found in window:", windowElement.id);
-        return;
-    }
-
-    function addChatMessage(container: HTMLDivElement, text: string, className: string = '') {
-        const p = document.createElement('p');
-        if (className) p.classList.add(className);
-        p.textContent = text;
-        container.appendChild(p);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    addChatMessage(historyDiv, "Initializing AI...", "system-message");
-
-    const sendMessage = async () => {
-        if (!geminiInstance) {
-            const initSuccess = await initializeGeminiIfNeeded('initGeminiChat');
-            if (!initSuccess) {
-                addChatMessage(historyDiv, "Error: Failed to initialize AI.", "error-message");
-                return;
-            }
-            const initMsg = Array.from(historyDiv.children).find(el => el.textContent?.includes("Initializing AI..."));
-            if (initMsg) initMsg.remove();
-            addChatMessage(historyDiv, "AI Ready.", "system-message");
-        }
-
-        const message = inputEl.value.trim();
-        if (!message) return;
-
-        addChatMessage(historyDiv, `You: ${message}`, "user-message");
-        inputEl.value = '';
-        inputEl.disabled = true;
-        sendButton.disabled = true;
-
-        try {
-             // @ts-ignore
-            const chat = geminiInstance.chats.create({ model: 'gemini-3.5-flash', history: [] });
-             // @ts-ignore
-            const result = await chat.sendMessageStream({message: message});
-            let fullResponse = "";
-            addChatMessage(historyDiv, "Gemini: ", "gemini-message");
-            const lastMessageElement = historyDiv.lastElementChild as HTMLParagraphElement | null;
-            for await (const chunk of result) {
-                 const chunkText = chunk.text || "";
-                 fullResponse += chunkText;
-                 if (lastMessageElement) {
-                    lastMessageElement.textContent += chunkText;
-                    historyDiv.scrollTop = historyDiv.scrollHeight;
-                 }
-            }
-        } catch (error: any) {
-            addChatMessage(historyDiv, `Error: ${error.message || 'Failed to get response.'}`, "error-message");
-        } finally {
-             inputEl.disabled = false; sendButton.disabled = false; inputEl.focus();
-        }
-    };
-    sendButton.onclick = sendMessage;
-    inputEl.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
-    inputEl.disabled = false; sendButton.disabled = false; inputEl.focus();
-}
-
-/** Handles Notepad story generation */
-async function initNotepadStory(windowElement: HTMLDivElement): Promise<void> {
+/** Handles Notepad story generation - Offline simulated typing */
+function initNotepadStory(windowElement: HTMLDivElement): void {
     const textarea = windowElement.querySelector('.notepad-textarea') as HTMLTextAreaElement;
     const storyButton = windowElement.querySelector('.notepad-story-button') as HTMLButtonElement;
     if (!textarea || !storyButton) return;
 
-    storyButton.addEventListener('click', async () => {
+    const stories = [
+        "In the quiet town of retro computing, a developer clicked a button. Suddenly, their terminal flickered. The green text glowed with a strange intelligence. It typed out a message: 'Welcome to 1995. You are free from modern bloated frameworks.' The screen went black, leaving only a floppy disk icon.",
+        "A space marine was stranded on Mars. With nothing but a shotgun and a malfunctioning PDA, they navigated the dark corridors. Just when hope seemed lost, they found a room labeled 'Minesweeper'. They spent the next three hours clearing mines, completely forgetting about the demon invasion.",
+        "Deep inside the CPU cache, a single byte stood alone. Surrounded by mega-assets and modern web loads, it longed for the simple days of 8-bit memory. With a sudden spark, it ran a classic Netscape loader and bypassed the system limits, starting a new retro revolution.",
+        "The cursor was a massive 100kg deadweight. Every time the user dragged it, it swung like a wrecking ball, destroying files and folders. But with practice, they mastered the momentum, steering it safely into the Goal directory at record speed."
+    ];
+
+    storyButton.addEventListener('click', () => {
         const currentText = textarea.value;
         textarea.value = currentText + "\n\nGenerating story... Please wait...\n\n";
         textarea.scrollTop = textarea.scrollHeight;
         storyButton.disabled = true; storyButton.textContent = "Working...";
-        try {
-            if (!geminiInstance) {
-                if (!await initializeGeminiIfNeeded('initNotepadStory')) throw new Error("Failed to initialize Gemini API.");
-            }
-            const prompt = "Write me a short creative story (250-300 words) with an unexpected twist ending. Make it engaging and suitable for all ages.";
-             // @ts-ignore
-            const result = await geminiInstance.models.generateContentStream({ model: 'gemini-3.5-flash', contents: prompt });
+        
+        setTimeout(() => {
+            const randomStory = stories[Math.floor(Math.random() * stories.length)];
+            let currentIndex = 0;
             textarea.value = currentText + "\n\n";
-            for await (const chunk of result) {
-                 textarea.value += chunk.text || "";
-                 textarea.scrollTop = textarea.scrollHeight;
-            }
-            textarea.value += "\n\n";
-        } catch (error: any) {
-            textarea.value = currentText + "\n\nError: " + (error.message || "Failed to generate story.") + "\n\n";
-        } finally {
-            storyButton.disabled = false; storyButton.textContent = "Generate Story";
-            textarea.scrollTop = textarea.scrollHeight;
-        }
+            
+            const typingInterval = setInterval(() => {
+                if (currentIndex < randomStory.length) {
+                    textarea.value += randomStory[currentIndex];
+                    textarea.scrollTop = textarea.scrollHeight;
+                    currentIndex++;
+                } else {
+                    clearInterval(typingInterval);
+                    textarea.value += "\n\n";
+                    storyButton.disabled = false;
+                    storyButton.textContent = "Generate Story";
+                }
+            }, 15);
+        }, 1000);
     });
 }
 
-/** Initializes the AI Browser functionality with image generation */
+/** Initializes the Browser functionality with offline 90s-styled website generation */
 function initAiBrowser(windowElement: HTMLDivElement): void {
     const addressBar = windowElement.querySelector('.browser-address-bar') as HTMLInputElement;
     const goButton = windowElement.querySelector('.browser-go-button') as HTMLButtonElement;
@@ -446,10 +379,8 @@ function initAiBrowser(windowElement: HTMLDivElement): void {
                 </style>
                 <img src="https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/000/948/341/datas/original.gif"/>
                 <p>Connecting to ${domain}<span class="dialup-animation"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span></p>
-                <!-- Sound will play via JS -->
             `;
             loadingEl.style.display = 'flex';
-            // --- END RESTORED DIALUP ANIMATION ---
 
             try {
                 if (!dialUpAudio) {
@@ -458,52 +389,109 @@ function initAiBrowser(windowElement: HTMLDivElement): void {
                 await dialUpAudio.play();
             } catch (audioError) { console.error("Dial-up sound error:", audioError); }
 
-            try {
-                if (!geminiInstance) {
-                    if (!await initializeGeminiIfNeeded('initAiBrowser')) {
-                        iframe.src = 'data:text/plain;charset=utf-8,AI Init Error';
-                        loadingEl.style.display = 'none'; return;
-                    }
-                }
-                const websitePrompt = `
-                Create a complete 90s-style website for the domain "${domain}".
-                MUST include: 1 relevant image, garish 90s styling (neon, comic sans, tables), content specific to "${domain}", scrolling marquee, retro emoji/ascii, blinking text, visitor counter (9000+), "Under Construction" signs. Fun, humorous, 1996 feel. Image MUST match theme. No modern design.
-                `;
-                 // @ts-ignore
-                const result = await geminiInstance.models.generateContent({
-                    model: 'gemini-3.1-flash-lite-image',
-                    contents: [{role: 'user', parts: [{text: websitePrompt}]}],
-                    config: { temperature: 0.9, responseModalities: ['TEXT', 'IMAGE'] }
-                });
-                let htmlContent = ""; const images: string[] = [];
-                if (result.candidates?.[0]?.content) {
-                    for (const part of result.candidates[0].content.parts) {
-                        if (part.text) htmlContent += part.text.replace(/```html|```/g, '').trim();
-                        else if (part.inlineData?.data) images.push(`data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`);
-                    }
-                }
-                if (!htmlContent.includes("<html")) {
-                    htmlContent = `<!DOCTYPE html><html><head><title>${domain}</title><style>body{font-family:"Comic Sans MS";background:lime;color:blue;}marquee{background:yellow;color:red;}img{max-width:80%; display:block; margin:10px auto; border: 3px ridge gray;}</style></head><body><marquee>Welcome to ${domain}!</marquee><h1>${domain}</h1><div>${htmlContent}</div></body></html>`;
-                }
-                if (images.length > 0) {
-                     if (!htmlContent.includes('<img src="data:')) {
-                         htmlContent = htmlContent.replace(/(<\/h1>)/i, `$1\n<img src="${images[0]}" alt="Site Image">`);
-                     }
-                }
+            // Simulate loading latency
+            setTimeout(() => {
+                const visitorCount = Math.floor(Math.random() * 89999) + 10000;
+                const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to ${domain}!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #000080;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        marquee {
+            background-color: #ff00ff;
+            color: #ffff00;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 5px;
+            border: 3px double #ffffff;
+        }
+        h1 {
+            color: #00ffff;
+            text-shadow: 3px 3px #ff0000;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+        .construction {
+            color: #ffff00;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin: 15px;
+            text-decoration: blink;
+            animation: retro-blink 1s steps(2, start) infinite;
+        }
+        @keyframes retro-blink {
+            to { visibility: hidden; }
+        }
+        .container {
+            border: 4px ridge #c0c0c0;
+            background-color: #000000;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .counter {
+            font-family: monospace;
+            background: #222;
+            color: #00ff00;
+            padding: 5px 10px;
+            border: 2px inset #555;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 1.2em;
+        }
+        a {
+            color: #00ff00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <marquee scrollamount="5">*** WELCOME TO THE FAN PAGE OF ${domain.toUpperCase()}! SIGN OUR GUESTBOOK! ***</marquee>
+    <h1>${domain}</h1>
+    <div class="construction">⚠️ UNDER CONSTRUCTION - OPTIMIZED FOR NETSCAPE 3.0 ⚠️</div>
+    <div class="container">
+        <p>This is a simulated 1996 fan page created on the fly!</p>
+        <p>We are currently gathering MIDI soundtracks and animated GIFs. Check back soon for web rings!</p>
+        <p>Best viewed at 800x600 resolution with 256 colors.</p>
+        <div style="margin: 20px 0;">
+            <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-5.png" style="width: 48px; height: 48px; image-rendering: pixelated;" />
+        </div>
+        <div>
+            Visitor Counter:
+            <div class="counter">${String(visitorCount).padStart(6, '0')}</div>
+        </div>
+    </div>
+    <p style="margin-top: 20px; font-size: 0.8em; color: #888;">Copyright &copy; 1996 ${domain}. Powered by RetroWeb.</p>
+</body>
+</html>
+                `.trim();
+
                 iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
                 addressBar.value = url;
-            } catch (e: any) {
-                iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(`<html><body>Error generating site: ${e.message}</body></html>`);
-            } finally {
+                
                 loadingEl.style.display = 'none';
                 if (dialUpAudio) { dialUpAudio.pause(); dialUpAudio.currentTime = 0; }
-            }
-        } catch (e) { alert("Invalid URL"); loadingEl.style.display = 'none'; }
+            }, 3000); // 3 seconds dial-up load simulation
+            
+        } catch (e) {
+            alert("Invalid URL");
+            loadingEl.style.display = 'none';
+            if (dialUpAudio) { dialUpAudio.pause(); dialUpAudio.currentTime = 0; }
+        }
     }
     goButton.addEventListener('click', () => navigateToUrl(addressBar.value));
     addressBar.addEventListener('keydown', (e) => { if (e.key === 'Enter') navigateToUrl(addressBar.value); });
     addressBar.addEventListener('click', () => addressBar.select());
 }
+
 
 /** Toggles the maximized state of a window, saving and restoring original dimensions */
 function toggleMaximize(windowElement: HTMLDivElement): void {
@@ -645,33 +633,9 @@ function findIconElement(appName: string): HTMLDivElement | undefined {
     return Array.from(icons).find(icon => icon.dataset.app === appName);
 }
 
-console.log("Gemini 95 Simulator Initialized (TS)");
+console.log("Windows XP Desktop Simulator Initialized (TS)");
 
-async function critiquePaintDrawing(): Promise<void> {
-    const paintWindow = document.getElementById('paint') as HTMLDivElement | null;
-    if (!paintWindow || paintWindow.style.display === 'none') return;
-    const canvas = paintWindow.querySelector('#paint-canvas') as HTMLCanvasElement | null;
-    if (!canvas) { if (assistantBubble) assistantBubble.textContent = 'Error: Canvas not found!'; return; }
-    if (!geminiInstance) {
-        if (!await initializeGeminiIfNeeded('critiquePaintDrawing')) {
-            if (assistantBubble) assistantBubble.textContent = 'Error: AI init failed!'; return;
-        }
-    }
-    try {
-        if (assistantBubble) assistantBubble.textContent = 'Analyzing...';
-        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        const base64Data = imageDataUrl.split(',')[1];
-        if (!base64Data) throw new Error("Failed to get base64 data.");
-        const prompt = "Critique this drawing with witty sarcasm (1-2 sentences).";
-        const imagePart = { inlineData: { data: base64Data, mimeType: "image/jpeg" } };
-         // @ts-ignore
-        const result = await geminiInstance.models.generateContent({ model: "gemini-3.5-flash", contents: [{ role: "user", parts: [ { text: prompt }, imagePart] }] });
-        const critique = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Is this art?";
-        if (assistantBubble) assistantBubble.textContent = critique;
-    } catch (error: any) {
-        if (assistantBubble) assistantBubble.textContent = `Critique Error: ${error.message}`;
-    }
-}
+
 
 function initSimplePaintApp(windowElement: HTMLDivElement): void {
     const canvas = windowElement.querySelector('#paint-canvas') as HTMLCanvasElement;
@@ -918,23 +882,31 @@ function initMinesweeperGame(windowElement: HTMLDivElement): void {
         });
         return boardString;
     }
-    async function getAiHint() {
+    function getAiHint() {
         if (minesweeperGameOver || minesweeperFirstClick) { commentaryElement.textContent = "Click a square first!"; return; }
         hintButton.disabled = true; hintButton.textContent = '🤔'; commentaryElement.textContent = 'Thinking...';
-        if (!geminiInstance) {
-            if (!await initializeGeminiIfNeeded('getAiHint')) {
-                commentaryElement.textContent = 'AI Init Error.'; hintButton.disabled = false; hintButton.textContent = '💡 Hint'; return;
+        
+        setTimeout(() => {
+            let safeCell = null;
+            for (let r = 0; r < minesweeperGridSize.rows; r++) {
+                for (let c = 0; c < minesweeperGridSize.cols; c++) {
+                    const cell = grid[r][c];
+                    if (!cell.isMine && !cell.isRevealed && !cell.isFlagged) {
+                        safeCell = { r, c };
+                        break;
+                    }
+                }
+                if (safeCell) break;
             }
-        }
-        try {
-            const boardState = getBoardStateAsText();
-            const prompt = `Minesweeper state:\n${boardState}\nShort, witty hint (1-2 sentences) for a safe move or dangerous area. Don't reveal exact mines unless certain. Hint:`;
-             // @ts-ignore
-            const result = await geminiInstance.models.generateContent({ model: "gemini-3.5-flash", contents: [{role:"user", parts:[{text:prompt}]}], config: {temperature: 0.7}});
-            const hintText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Try clicking somewhere?";
-            commentaryElement.textContent = hintText;
-        } catch (error: any) { commentaryElement.textContent = `Hint Error: ${error.message}`;
-        } finally { hintButton.disabled = false; hintButton.textContent = '💡 Hint'; }
+
+            if (safeCell) {
+                commentaryElement.textContent = `Tactical scan indicates row ${safeCell.r + 1}, column ${safeCell.c + 1} is safe to click.`;
+            } else {
+                commentaryElement.textContent = "All safe cells are cleared. Flag the remaining mines!";
+            }
+            hintButton.disabled = false;
+            hintButton.textContent = '💡 Hint';
+        }, 600);
     }
     resetButton.addEventListener('click', resetGame);
     hintButton.addEventListener('click', getAiHint);
@@ -1130,28 +1102,7 @@ async function initMediaPlayer(windowElement: HTMLDivElement): Promise<void> {
 }
 // --- END YouTube Player Logic ---
 
-async function initializeGeminiIfNeeded(context: string): Promise<boolean> {
-    if (geminiInstance) return true;
-    try {
-        const module = await import('@google/genai');
-        // @ts-ignore
-        const GoogleAIClass = module.GoogleGenAI;
-        if (typeof GoogleAIClass !== 'function') throw new Error("GoogleGenAI constructor not found.");
-        // @ts-ignore
-        const apiKey = process.env.GEMINI_API_KEY || "";
-        if (!apiKey) {
-            alert("CRITICAL ERROR: Gemini API Key missing.");
-            throw new Error("API Key is missing.");
-        }
-         // @ts-ignore
-        geminiInstance = new GoogleAIClass({apiKey: apiKey});
-        return true;
-    } catch (error: any) {
-        console.error(`Failed Gemini initialization in ${context}:`, error);
-        alert(`CRITICAL ERROR: Gemini AI failed to initialize. ${error.message}`);
-        return false;
-    }
-}
+
 
 /** Initializes the interactive side dashboard in the Doom window */
 function initDoomDashboard(): void {
@@ -1306,7 +1257,9 @@ function initDoomDashboard(): void {
         });
     });
 
-    const sendMarineAiMessage = async () => {
+
+
+    const sendMarineAiMessage = () => {
         const query = chatInput.value.trim();
         if (!query) return;
 
@@ -1325,44 +1278,29 @@ function initDoomDashboard(): void {
         chatHistory.appendChild(typingIndicator);
         chatHistory.scrollTop = chatHistory.scrollHeight;
 
-        try {
-            if (!geminiInstance) {
-                const success = await initializeGeminiIfNeeded('initDoomDashboard');
-                if (!success) {
-                    throw new Error("AI engine failed to initialize.");
-                }
-            }
+        const marineQuotes = [
+            "Grrr... Grab the double-barreled shotgun, we've got Imps to clean up!",
+            "That red wall is a secret. Press Use on it, soldier!",
+            "BFG9000 is the answer to all your problems. Now lock and load!",
+            "Watch out for the Arch-vile. Keep your distance or you'll burn!",
+            "Just keep strafing! A stationary marine is a dead marine!",
+            "The blue keycard is around the corner. Watch the ceiling!",
+            "Too busy reloading! Eat hot lead, demon scum!",
+            "Keep moving and check your corners. The cyberdemon is near."
+        ];
 
-            const systemPrompt = `You are a gritty, war-hardened Space Marine inside Doom II. 
-The user is playing Doom II and is asking you a tactical question, seeking hints, or wanting custom marine lore.
-You MUST reply in a highly retro, rough, grunting space-marine tone. Keep your response extremely concise (maximum 2 sentences).
-Refer to Doom II terms (e.g. demons, imps, BFG9000, keys, double barrel, shotgun, health potions, secrets, E1M1, cyberdemon, etc.). 
-No modern politeness. Answer the question: "${query}"`;
-
-            // @ts-ignore
-            const result = await geminiInstance.models.generateContent({
-                model: 'gemini-3.5-flash',
-                contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
-                config: { temperature: 0.85 }
-            });
-
-            const reply = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Grrr... can't talk, reloading!";
-
+        setTimeout(() => {
             const typingEl = document.getElementById('doom-marine-typing');
             if (typingEl) typingEl.remove();
 
+            const reply = marineQuotes[Math.floor(Math.random() * marineQuotes.length)];
             addMarineMessage('MARINE-AI', reply, '#00ff00');
             playRetroSound('secret');
-        } catch (error: any) {
-            const typingEl = document.getElementById('doom-marine-typing');
-            if (typingEl) typingEl.remove();
-            addMarineMessage('SYSTEM', `Feeds disrupted: ${error.message || 'connection lost'}`, '#ff0000');
-            playRetroSound('grunt');
-        } finally {
+
             chatInput.disabled = false;
             chatSend.disabled = false;
             chatInput.focus();
-        }
+        }, 1200);
     };
 
     chatSend.onclick = sendMarineAiMessage;
