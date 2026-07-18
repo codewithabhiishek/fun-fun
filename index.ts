@@ -534,6 +534,13 @@ icons.forEach(icon => {
     icon.addEventListener('click', () => {
         const appName = icon.getAttribute('data-app');
         if (appName) {
+            if (appName === 'notepad') {
+                const notepadWindow = document.getElementById('notepad') as HTMLDivElement | null;
+                const textarea = notepadWindow?.querySelector('.notepad-textarea') as HTMLTextAreaElement | null;
+                const linkContainer = notepadWindow?.querySelector('#notepad-link-container') as HTMLDivElement | null;
+                if (textarea) textarea.value = '';
+                if (linkContainer) linkContainer.style.display = 'none';
+            }
             openApp(appName);
             startMenu.classList.remove('active');
         }
@@ -543,7 +550,16 @@ icons.forEach(icon => {
 document.querySelectorAll('.start-menu-item').forEach(item => {
     item.addEventListener('click', () => {
         const appName = (item as HTMLElement).getAttribute('data-app');
-        if (appName) openApp(appName);
+        if (appName) {
+            if (appName === 'notepad') {
+                const notepadWindow = document.getElementById('notepad') as HTMLDivElement | null;
+                const textarea = notepadWindow?.querySelector('.notepad-textarea') as HTMLTextAreaElement | null;
+                const linkContainer = notepadWindow?.querySelector('#notepad-link-container') as HTMLDivElement | null;
+                if (textarea) textarea.value = '';
+                if (linkContainer) linkContainer.style.display = 'none';
+            }
+            openApp(appName);
+        }
         startMenu.classList.remove('active');
     });
 });
@@ -935,8 +951,10 @@ function initMyComputer(windowElement: HTMLDivElement): void {
     creditsIcon.addEventListener('click', () => {
         const notepadWindow = document.getElementById('notepad') as HTMLDivElement | null;
         const textarea = notepadWindow?.querySelector('.notepad-textarea') as HTMLTextAreaElement | null;
+        const linkContainer = notepadWindow?.querySelector('#notepad-link-container') as HTMLDivElement | null;
         if (notepadWindow && textarea) {
-            textarea.value = `[ SYSTEM INFORMATION ]\n-----------------------------------------\nSYSTEM DEVELOPER: Abhishek (for fun)\nYEAR OF ORIGIN:   1996 / 2026\n\nWARNING: Do not delete SYSTEM32 folder. \nSide effects include: BSOD, retro temporal loops, and extreme nostalgia.`;
+            textarea.value = `[ SYSTEM INFORMATION ]\n-----------------------------------------\nSYSTEM DEVELOPER: Abhishek (for fun)\nPORTFOLIO:        https://abhiishek-dev.vercel.app/\nYEAR OF ORIGIN:   1996 / 2026\n\nWARNING: Do not delete SYSTEM32 folder. \nSide effects include: BSOD, retro temporal loops, and extreme nostalgia.`;
+            if (linkContainer) linkContainer.style.display = 'block';
             openApp('notepad');
         }
     });

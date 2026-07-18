@@ -139,7 +139,7 @@
 
       <div class="window resizable" id="notepad">
         <div class="window-titlebar">
-          <span class="window-title">GemNotes</span>
+          <span class="window-title">Notepad</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
             <div class="window-maximize window-control-button">□</div>
@@ -147,8 +147,11 @@
           </div>
         </div>
         <div class="window-content">
-          <div class="notepad-menu">
+          <div class="notepad-menu" style="display: flex; align-items: center; justify-content: space-between;">
             <button class="notepad-story-button">Generate Story</button>
+            <div id="notepad-link-container" style="display: none; font-family: monospace; font-size: 11px; padding-right: 8px;">
+              <a href="https://abhiishek-dev.vercel.app/" target="_blank" style="color: blue; text-decoration: underline; font-weight: bold;">[ Visit Portfolio ]</a>
+            </div>
           </div>
           <textarea
             class="notepad-textarea"
@@ -167,7 +170,7 @@
 
       <div class="window resizable" id="paint">
         <div class="window-titlebar">
-          <span class="window-title">GemPaint</span>
+          <span class="window-title">Paint</span>
           <div class="window-controls">
             <div class="window-minimize window-control-button">−</div>
             <div class="window-maximize window-control-button">□</div>
