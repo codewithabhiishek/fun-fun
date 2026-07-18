@@ -927,7 +927,7 @@ function initMyComputer(windowElement: HTMLDivElement): void {
         const imageViewerImg = document.getElementById('image-viewer-img') as HTMLImageElement | null;
         const imageViewerTitle = document.getElementById('image-viewer-title') as HTMLSpanElement | null;
         if (!imageViewerWindow || !imageViewerImg || !imageViewerTitle) { alert("Image Viewer corrupted!"); return; }
-        imageViewerImg.src = 'https://upload.wikimedia.org/wikipedia/commons/7/70/Bliss_%28Windows_XP%29.png';
+        imageViewerImg.src = '/bliss.jpg';
         imageViewerImg.alt = 'bliss.jpg';
         imageViewerTitle.textContent = 'bliss.jpg - Image Viewer';
         openApp('imageViewer');
