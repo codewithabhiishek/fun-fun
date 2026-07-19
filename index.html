@@ -114,6 +114,60 @@
               <span>credits.txt</span>
             </div>
           </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window" id="calculator" style="width: 250px; height: 320px; display: none; top: 100px; left: 100px;">
+        <div class="window-titlebar">
+          <span class="window-title">Calculator</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content" style="background-color: #c0c0c0; padding: 10px; display: flex; flex-direction: column; gap: 10px;">
+          <input type="text" id="calc-display" value="0" disabled style="width: 100%; text-align: right; font-family: monospace; font-size: 24px; padding: 5px; background: white; border: inset 2px; color: black;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex-grow: 1;">
+            <button class="calc-btn" style="grid-column: span 2; color: red;">C</button>
+            <button class="calc-btn" style="color: red;">CE</button>
+            <button class="calc-btn">/</button>
+            
+            <button class="calc-btn">7</button>
+            <button class="calc-btn">8</button>
+            <button class="calc-btn">9</button>
+            <button class="calc-btn">*</button>
+            
+            <button class="calc-btn">4</button>
+            <button class="calc-btn">5</button>
+            <button class="calc-btn">6</button>
+            <button class="calc-btn">-</button>
+            
+            <button class="calc-btn">1</button>
+            <button class="calc-btn">2</button>
+            <button class="calc-btn">3</button>
+            <button class="calc-btn">+</button>
+            
+            <button class="calc-btn" style="grid-column: span 2;">0</button>
+            <button class="calc-btn">.</button>
+            <button class="calc-btn">=</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="window resizable" id="recycleBin" style="display: none; top: 100px; left: 150px; width: 400px; height: 300px;">
+        <div class="window-titlebar">
+          <span class="window-title">Recycle Bin</span>
+          <div class="window-controls">
+            <div class="window-minimize window-control-button">−</div>
+            <div class="window-maximize window-control-button">□</div>
+            <div class="window-close window-control-button">✕</div>
+          </div>
+        </div>
+        <div class="window-content" style="background-color: white">
+           <div id="recycle-bin-content" style="display: flex; gap: 10px; padding: 10px; flex-wrap: wrap;">
+             <!-- Deleted files go here -->
+           </div>
         </div>
       </div>
 
