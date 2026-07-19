@@ -95,6 +95,9 @@ async function openApp(appName: string): Promise<void> {
     windowElement.style.display = 'flex';
     windowElement.classList.add('active');
     bringToFront(windowElement);
+    
+    // Play open sound
+    if (typeof playSound === 'function') playSound('open');
 
     const taskbarButton = document.createElement('div');
     taskbarButton.classList.add('taskbar-app');
@@ -119,6 +122,8 @@ async function openApp(appName: string): Promise<void> {
             case 'minesweeper': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/gemsweeper.png'; title = 'Minesweeper'; break;
             case 'imageViewer': iconSrc = 'https://win98icons.alexmeub.com/icons/png/display_properties-4.png'; title = 'Image Viewer'; break;
             case 'mediaPlayer': iconSrc = 'https://storage.googleapis.com/gemini-95-icons/ytmediaplayer.png'; title = 'Media Player'; break;
+            case 'calculator': iconSrc = 'https://win98icons.alexmeub.com/icons/png/calculator-1.png'; title = 'Calculator'; break;
+            case 'recycleBin': iconSrc = 'https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-4.png'; title = 'Recycle Bin'; break;
          }
     }
 
@@ -170,6 +175,12 @@ async function openApp(appName: string): Promise<void> {
     else if (appName === 'mediaPlayer') {
         await initMediaPlayer(windowElement);
     }
+    else if (appName === 'calculator') {
+        if (typeof initCalculator === 'function') initCalculator(windowElement);
+    }
+    else if (appName === 'recycleBin') {
+        if (typeof initRecycleBin === 'function') initRecycleBin(windowElement);
+    }
 }
 
 /** Closes an application window */
@@ -183,6 +194,9 @@ function closeApp(appName: string): void {
     windowEl.classList.remove('active');
     taskbarButton.remove();
     openApps.delete(appName);
+    
+    // Play close sound
+    if (typeof playSound === 'function') playSound('close');
 
     if (dosInstances[appName]) {
         console.log(`Cleaning up ${appName} instance (iframe approach)`);
@@ -1373,3 +1387,217 @@ document.addEventListener('mousedown', (e) => {
         playClickSound();
     }
 });
+
+// --- NEW FEATURES ---
+
+// Audio System
+const SYSTEM_SOUNDS = {
+    startup: 'https://win98icons.alexmeub.com/audio/startup.mp3',
+    error: 'https://win98icons.alexmeub.com/audio/chord.wav',
+    open: 'https://win98icons.alexmeub.com/audio/click.wav',
+    close: 'https://win98icons.alexmeub.com/audio/click.wav',
+    emptyBin: 'https://win98icons.alexmeub.com/audio/empty.wav'
+};
+let startupPlayed = false;
+function playSound(type: keyof typeof SYSTEM_SOUNDS) {
+    try {
+        const audio = new Audio(SYSTEM_SOUNDS[type]);
+        audio.play().catch(e => console.warn("Audio play blocked", e));
+    } catch(e) {}
+}
+
+document.addEventListener('click', () => {
+    if (!startupPlayed) {
+        playSound('startup');
+        startupPlayed = true;
+    }
+}, { once: true });
+
+// Context Menu Logic
+const contextMenu = document.getElementById('context-menu') as HTMLDivElement;
+const contextMenuList = document.getElementById('context-menu-list') as HTMLUListElement;
+
+function hideContextMenu() {
+    if (contextMenu) contextMenu.style.display = 'none';
+}
+
+document.addEventListener('contextmenu', (e) => {
+    // Only intercept if we click on desktop or icons directly to avoid breaking Minesweeper etc.
+    const target = e.target as HTMLElement;
+    const isDesktop = target.id === 'desktop' || target.classList.contains('desktop');
+    const targetIcon = target.closest('.icon') as HTMLElement | null;
+    
+    if (isDesktop || targetIcon) {
+        e.preventDefault();
+        if (!contextMenu) return;
+        
+        contextMenu.style.display = 'block';
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        
+        contextMenuList.innerHTML = '';
+        
+        if (targetIcon) {
+             const appName = targetIcon.dataset.app;
+             const openItem = document.createElement('li'); openItem.innerText = 'Open';
+             openItem.onclick = () => { targetIcon.click(); hideContextMenu(); };
+             
+             const deleteItem = document.createElement('li'); deleteItem.innerText = 'Delete';
+             deleteItem.onclick = () => { 
+                 if (appName) deleteFileToBin(appName);
+                 hideContextMenu(); 
+             };
+             
+             contextMenuList.appendChild(openItem);
+             contextMenuList.appendChild(deleteItem);
+        } else {
+             const refreshItem = document.createElement('li'); refreshItem.innerText = 'Refresh';
+             refreshItem.onclick = () => { window.location.reload(); };
+             
+             const personalizeItem = document.createElement('li'); personalizeItem.innerText = 'Personalize';
+             personalizeItem.onclick = () => { alert("Personalize feature coming soon!"); hideContextMenu(); };
+             
+             contextMenuList.appendChild(refreshItem);
+             const div = document.createElement('li'); div.className = 'context-menu-divider';
+             contextMenuList.appendChild(div);
+             contextMenuList.appendChild(personalizeItem);
+        }
+    }
+});
+document.addEventListener('click', hideContextMenu);
+
+// Recycle Bin Logic
+const deletedFiles: { appName: string, iconHtml: string }[] = [];
+
+function deleteFileToBin(appName: string) {
+    if (appName === 'recycleBin') {
+        playSound('error');
+        alert("Cannot delete the Recycle Bin!");
+        return;
+    }
+    let iconElement: HTMLElement | null = null;
+    document.querySelectorAll('.icon').forEach(el => {
+        if ((el as HTMLElement).dataset.app === appName) {
+            iconElement = el as HTMLElement;
+        }
+    });
+    
+    if (iconElement) {
+        deletedFiles.push({ appName, iconHtml: iconElement.outerHTML });
+        iconElement.style.display = 'none';
+        updateRecycleBinView();
+    }
+}
+
+function restoreFile(appName: string) {
+    let iconElement: HTMLElement | null = null;
+    document.querySelectorAll('.icon').forEach(el => {
+        if ((el as HTMLElement).dataset.app === appName) {
+            iconElement = el as HTMLElement;
+        }
+    });
+    
+    if (iconElement) {
+        iconElement.style.display = 'flex';
+        const index = deletedFiles.findIndex(f => f.appName === appName);
+        if (index > -1) deletedFiles.splice(index, 1);
+        updateRecycleBinView();
+    }
+}
+
+function emptyRecycleBin() {
+    if (deletedFiles.length > 0) {
+        playSound('emptyBin');
+        deletedFiles.length = 0;
+        updateRecycleBinView();
+    }
+}
+
+function updateRecycleBinView() {
+    const binContent = document.getElementById('recycle-bin-content');
+    if (binContent) {
+        binContent.innerHTML = '';
+        if (deletedFiles.length === 0) {
+            binContent.innerHTML = '<span style="font-family: monospace; font-size: 12px; color: gray;">Recycle Bin is empty.</span>';
+        }
+        deletedFiles.forEach(file => {
+             const div = document.createElement('div');
+             div.className = 'recycle-bin-item';
+             
+             const parser = new DOMParser();
+             const doc = parser.parseFromString(file.iconHtml, 'text/html');
+             const img = doc.querySelector('img')?.src || '';
+             const span = doc.querySelector('span')?.innerText || file.appName;
+             
+             div.innerHTML = `<img src="${img}"><span>${span}</span>`;
+             div.ondblclick = () => { restoreFile(file.appName); };
+             div.title = "Double-click to restore";
+             binContent.appendChild(div);
+        });
+        
+        if (deletedFiles.length > 0) {
+            const btnDiv = document.createElement('div');
+            btnDiv.style.width = '100%';
+            btnDiv.style.marginTop = '10px';
+            const emptyBtn = document.createElement('button');
+            emptyBtn.innerText = "Empty Recycle Bin";
+            emptyBtn.style.padding = "4px 8px";
+            emptyBtn.onclick = emptyRecycleBin;
+            btnDiv.appendChild(emptyBtn);
+            binContent.appendChild(btnDiv);
+        }
+    }
+}
+
+// Make initRecycleBin globally available for the openApp function
+(window as any).initRecycleBin = function(windowEl: HTMLDivElement) {
+    updateRecycleBinView();
+};
+
+// Calculator Logic
+let calcVal = '0';
+let calcOp = '';
+let calcPrev = '';
+let calcReset = false;
+let calcInitialized = false;
+
+(window as any).initCalculator = function(windowEl: HTMLDivElement) {
+    if (calcInitialized) return;
+    calcInitialized = true;
+    
+    const display = windowEl.querySelector('#calc-display') as HTMLInputElement;
+    const btns = windowEl.querySelectorAll('.calc-btn');
+    
+    btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const val = (e.target as HTMLElement).innerText;
+            if (['0','1','2','3','4','5','6','7','8','9','.'].includes(val)) {
+                if (calcReset || display.value === '0') {
+                    display.value = val === '.' ? '0.' : val;
+                    calcReset = false;
+                } else {
+                    display.value += val;
+                }
+            } else if (['+','-','*','/'].includes(val)) {
+                calcPrev = display.value;
+                calcOp = val;
+                calcReset = true;
+            } else if (val === '=') {
+                if (calcOp && calcPrev) {
+                    try {
+                        const result = new Function('return ' + calcPrev + calcOp + display.value)();
+                        display.value = String(result);
+                    } catch(e) {
+                        display.value = 'Error';
+                    }
+                }
+                calcReset = true;
+            } else if (val === 'C') {
+                display.value = '0'; calcPrev = ''; calcOp = '';
+            } else if (val === 'CE') {
+                display.value = '0';
+            }
+        });
+    });
+};
+
