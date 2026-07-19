@@ -45,7 +45,7 @@ const youtubePlayers: Record<string, YT.Player | null> = {};
 let ytApiLoaded = false;
 let ytApiLoadingPromise: Promise<void> | null = null;
 
-const DEFAULT_YOUTUBE_VIDEO_ID = 'WXuK6gekU1Y'; // Default video for GemPlayer ("Never Gonna Give You Up")
+const DEFAULT_YOUTUBE_VIDEO_ID = 'GBIIQ0kP15E'; // Default video for GemPlayer
 
 // --- Core Functions ---
 
